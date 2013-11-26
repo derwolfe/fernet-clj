@@ -1,4 +1,4 @@
-(defproject fernet "0.1.0-SNAPSHOT"
+(defproject fernet "0.1.0"
   :description "Authenticated symmetric encryption made easy."
   :url "https://github.com/dreid/fernet-clj"
   :license {:name "MIT"
@@ -11,4 +11,5 @@
                                   [clj-time "0.6.0"]
                                   [perforate "0.3.3"]]
                    :plugins [[perforate "0.3.3"]
-                             [lein-autodoc "0.9.0"]]}})
+                             [lein-autodoc "0.9.0"]]}}
+  :lein-release {:deploy-via :clojars})
