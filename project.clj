@@ -1,0 +1,13 @@
+(defproject fernet "0.1.0-SNAPSHOT"
+  :description "Authenticated symmetric encryption made easy."
+  :url "https://github.com/dreid/fernet-clj"
+  :license {:name "MIT"}
+  :dependencies [[org.clojure/clojure "1.5.1"]
+                 [org.bouncycastle/bcprov-jdk15on "1.49"]
+                 [commons-codec/commons-codec "1.8"]]
+  :profiles {:dev {:resource-paths ["test/resources"]
+                   :dependencies [[org.clojure/data.json "0.2.3"]
+                                  [clj-time "0.6.0"]
+                                  [perforate "0.3.3"]]
+                   :plugins [[perforate "0.3.3"]
+                             [lein-autodoc "0.9.0"]]}})
