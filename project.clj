@@ -1,7 +1,8 @@
 (defproject fernet "0.1.0-SNAPSHOT"
   :description "Authenticated symmetric encryption made easy."
   :url "https://github.com/dreid/fernet-clj"
-  :license {:name "MIT"}
+  :license {:name "MIT"
+            :url "https://raw.github.com/dreid/fernet-clj/master/LICENSE"}
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [org.bouncycastle/bcprov-jdk15on "1.49"]
                  [commons-codec/commons-codec "1.8"]]
