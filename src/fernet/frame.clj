@@ -38,7 +38,17 @@
         signed-bytes (get-bytes buffer signed)]
     signed-bytes))
 
-(defn decode [b]
+(defn encode-token
+  [{:keys [version ciphertext iv timestamp hmac-fn]}]
+  (let [token (allocate ciphertext)]
+    (-> token
+        (put-header version timestamp iv)
+        (put ciphertext)
+        (put (hmac-fn (bytes-to-sign token)))
+        (.array))))
+
+(defn decode-token
+  [b]
   (let [buffer (ByteBuffer/wrap b)
         version (bit-and 0xFF (Short. (short (.get buffer))))
         timestamp (.getLong buffer)

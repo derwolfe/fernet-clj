@@ -1,6 +1,6 @@
 (ns fernet.bench.api
-  (:use perforate.core
-        fernet))
+  (:require [perforate.core :refer :all]
+            [fernet.core :refer :all]))
 
 (defgoal encryption "fernet encryption")
 
@@ -22,3 +22,9 @@
 (defcase decryption :basic
   []
   (decrypt k token))
+
+(defcase decryption :expired
+  []
+  (try
+    (decrypt k token :ttl 1)
+    (catch clojure.lang.ExceptionInfo e e)))
