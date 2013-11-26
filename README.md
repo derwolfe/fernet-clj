@@ -10,7 +10,7 @@ fernet-clj currently supports version ``0x80`` of the fernet specification.
 
 First, if you use leiningen, add the following to your dependencies:
 
-[![Latest Version](https://clojars.org/fernet/latest-version.svg)](https://clojars/fernet/)
+[![Latest Version](https://clojars.org/fernet/latest-version.svg)](https://clojars.org/fernet/)
 
 To encrypt some data we must generate a key:
 
