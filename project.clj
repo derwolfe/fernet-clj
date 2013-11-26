@@ -1,4 +1,4 @@
-(defproject fernet "0.1.0"
+(defproject fernet "0.1.1-SNAPSHOT"
   :description "Authenticated symmetric encryption made easy."
   :url "https://github.com/dreid/fernet-clj"
   :license {:name "MIT"
