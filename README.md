@@ -1,5 +1,7 @@
 # fernet
 
+[![Build Status](https://travis-ci.org/dreid/fernet-clj.png?branch=master)](https://travis-ci.org/dreid/fernet-clj)
+
 A Clojure implementation of [fernet](https://github.com/fernet/spec).
 
 Fernet's goal is to provide simple and sane authenticated symmetric encryption.
