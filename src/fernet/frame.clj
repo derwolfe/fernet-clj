@@ -1,64 +1,61 @@
 (ns fernet.frame
+  (:require [clojurewerkz.buffy.core :refer :all]
+            [clojurewerkz.buffy.util :refer [hex-dump]]
+            [clojurewerkz.buffy.types.protocols :refer :all]
+            [fernet.codec :refer [hex]])
   (:import [java.nio ByteBuffer]))
 
-;; sizes of fields in bytes
-(def sizes {:version 1
-            :timestamp 8
-            :iv 16
-            :hmac 32})
+;; extend buffy
+(deftype UByteType []
+  BuffyType
+  (size [_] 1)
+  (write [bt buffer idx value]
+    (.setByte buffer idx value))
+  (read [by buffer idx]
+    (bit-and 0xFF (.getByte buffer idx))))
 
-(def overhead (apply + (vals sizes)))
-(def header-size (- (:hmac sizes) overhead))
+(def ubyte-type (memoize #(UByteType.)))
 
-(defn ^ByteBuffer allocate [ciphertext]
-  (ByteBuffer/allocate (+ overhead (alength ciphertext))))
+(def token-spec {:version (ubyte-type)
+                 :timestamp (long-type)
+                 :iv (bytes-type 16)
+                 :ciphertext nil
+                 :hmac (bytes-type 32)})
 
-(defn ^ByteBuffer put-header [^ByteBuffer buffer version timestamp iv]
-  (doto buffer
-    (.put (.byteValue (Short. (short version))))
-    (.putLong timestamp)
-    (.put iv)))
+(def overhead
+  (apply + (map #(size (second %)) (dissoc token-spec :ciphertext))))
 
-(defn ^ByteBuffer put [^ByteBuffer buffer value]
-  (doto buffer (.put value)))
+(defn token-buf [ciphertext-length]
+  (let [spec (assoc token-spec :ciphertext (bytes-type ciphertext-length))]
+    (compose-buffer spec :buffer-type :heap)))
 
-(defn bytes-to-sign [^ByteBuffer buffer]
-  (-> buffer
-      (.array)
-      (java.util.Arrays/copyOfRange 0 (.position buffer))))
+(defn fill-buffer [buf b]
+  (.setBytes (buffer buf) 0 b)
+  buf)
 
-(defn get-bytes [^ByteBuffer buffer size]
-  (let [b (byte-array size)]
-    (.get buffer b)
-    b))
-
-(defn extract-signed [buffer]
-  (let [cap (.capacity buffer)
-        signed (- cap (:hmac sizes))
-        signed-bytes (get-bytes buffer signed)]
-    signed-bytes))
+(defn get-bytes
+  ([buf length]
+    (get-bytes buf 0 length))
+  ([buf start length]
+   (let [b (byte-array length)]
+     (.getBytes buf start b 0 length)
+     b)))
 
 (defn encode-token
   [{:keys [version ciphertext iv timestamp hmac-fn]}]
-  (let [token (allocate ciphertext)]
-    (-> token
-        (put-header version timestamp iv)
-        (put ciphertext)
-        (put (hmac-fn (bytes-to-sign token)))
-        (.array))))
+  (let [ciphertext-length (alength ciphertext)
+        signed-length (- (+ overhead ciphertext-length) 32)
+        buf (token-buf ciphertext-length)]
+    (set-fields buf {:version version
+                     :timestamp timestamp
+                     :iv iv
+                     :ciphertext ciphertext})
+    (set-field buf :hmac (hmac-fn (get-bytes (buffer buf) signed-length)))
+    (.array (buffer buf))))
 
 (defn decode-token
   [b]
-  (let [buffer (ByteBuffer/wrap b)
-        version (bit-and 0xFF (Short. (short (.get buffer))))
-        timestamp (.getLong buffer)
-        iv (get-bytes buffer (:iv sizes))
-        ciphertext (get-bytes buffer (- (.remaining buffer) (:hmac sizes)))
-        hmac (get-bytes buffer (:hmac sizes))
-        signed (extract-signed (ByteBuffer/wrap b))]
-    {:version version
-     :timestamp timestamp
-     :iv iv
-     :ciphertext ciphertext
-     :signed signed
-     :hmac hmac}))
+  (let [signed-length (- (alength b) 32)
+        buf (token-buf (- (alength b) overhead))]
+    (fill-buffer buf b)
+    (assoc (decompose buf) :signed (get-bytes (buffer buf) signed-length))))

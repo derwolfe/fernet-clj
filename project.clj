@@ -5,7 +5,8 @@
             :url "https://raw.github.com/dreid/fernet-clj/master/LICENSE"}
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [org.bouncycastle/bcprov-jdk15on "1.49"]
-                 [commons-codec/commons-codec "1.8"]]
+                 [commons-codec/commons-codec "1.8"]
+                 [clojurewerkz/buffy "0.3.0"]]
   :profiles {:dev {:resource-paths ["test/resources"]
                    :dependencies [[org.clojure/data.json "0.2.3"]
                                   [clj-time "0.6.0"]
