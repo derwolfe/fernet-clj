@@ -1,5 +1,5 @@
 (ns fernet.codec.urlbase64
-  (:import [org.apache.commons.codec.binary Base64]))
+  (:import (org.apache.commons.codec.binary Base64)))
 
 (defn encode
   "URL-Safe Base64 encode 'b' and return a 'String'."

@@ -1,5 +1,5 @@
 (ns fernet.codec
-  (:import [org.apache.commons.codec.binary Hex]))
+  (:import (org.apache.commons.codec.binary Hex)))
 
 (defn hex
   "Return a hex encoded string of the value of 'b'"

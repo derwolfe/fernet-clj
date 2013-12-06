@@ -1,10 +1,10 @@
 (ns fernet.core
   (:require [fernet.codec.urlbase64 :as urlbase64]
             [fernet.frame :as frame])
-  (:import [org.bouncycastle.jce.provider BouncyCastleProvider]
-           [java.security SecureRandom Security]
-           [javax.crypto Cipher Mac]
-           [javax.crypto.spec SecretKeySpec IvParameterSpec]))
+  (:import (java.security SecureRandom Security)
+           (javax.crypto Cipher Mac)
+           (javax.crypto.spec IvParameterSpec SecretKeySpec)
+           (org.bouncycastle.jce.provider BouncyCastleProvider)))
 
 (Security/addProvider (new BouncyCastleProvider))
 

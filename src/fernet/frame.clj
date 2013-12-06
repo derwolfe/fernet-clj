@@ -1,9 +1,6 @@
 (ns fernet.frame
   (:require [clojurewerkz.buffy.core :refer :all]
-            [clojurewerkz.buffy.util :refer [hex-dump]]
-            [clojurewerkz.buffy.types.protocols :refer :all]
-            [fernet.codec :refer [hex]])
-  (:import [java.nio ByteBuffer]))
+            [clojurewerkz.buffy.types.protocols :refer :all]))
 
 ;; extend buffy
 (deftype UByteType []
