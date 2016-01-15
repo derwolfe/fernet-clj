@@ -85,8 +85,22 @@
     (catch Exception e
       (invalid-token))))
 
-(defn encrypt [key message]
-  (String. (encrypt-message key message)))
-
 (defn decrypt [key token & options]
   (apply decrypt-token key token options))
+
+(defn decrypt-to-string
+  [key token & options]
+  (String. (apply decrypt-token key token options)))
+
+(defn- ->token-string [key message]
+  (String. (encrypt-message key message)))
+
+(defmulti encrypt (fn [_  message-text] (class message-text)))
+
+(defmethod encrypt String [key message]
+  (let [message-bytes (byte-array (map byte message))
+        token (->token-string key message-bytes)]
+    token))
+
+(defmethod encrypt (Class/forName "[B") [key message]
+  (->token-string key message))
