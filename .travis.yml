@@ -1,3 +1,4 @@
+sudo: false
 language: clojure
 jdk:
 - oraclejdk8
@@ -7,5 +8,6 @@ cache:
   - "$HOME/.m2"
 script:
   - lein test
+  - lein ancient
 notifications:
   email: false
