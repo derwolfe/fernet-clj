@@ -85,8 +85,19 @@
     (catch Exception e
       (invalid-token))))
 
+(defn decrypt [key token & options]
+  "Decrypt the token and return the contents as a byte-array"
+  (apply decrypt-token key token options))
+
+(defn decrypt-to-string
+  "Decrypt the token and return the message as a string"
+  [key token & options]
+  (String. (apply decrypt-token key token options)))
+
 (defn encrypt [key message]
   (String. (encrypt-message key message)))
 
-(defn decrypt [key token & options]
-  (apply decrypt-token key token options))
+(defn encrypt-string [key message]
+  (let [message-bytes (byte-array (map byte message))
+        token (encrypt key message-bytes)]
+    token))
