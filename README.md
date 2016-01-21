@@ -1,6 +1,6 @@
 # fernet
 
-[![Build Status](https://travis-ci.org/dreid/fernet-clj.png?branch=master)](https://travis-ci.org/dreid/fernet-clj)
+[![Build Status](https://travis-ci.org/derwolfe/fernet-clj.png?branch=master)](https://travis-ci.org/derwolfe/fernet-clj)
 
 A Clojure implementation of [fernet](https://github.com/fernet/spec).
 
