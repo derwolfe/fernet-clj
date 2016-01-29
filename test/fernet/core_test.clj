@@ -86,4 +86,13 @@
   (testing "encrypt/decrypt round trip"
     (is (java.util.Arrays/equals
           (byte-array (map byte "hello world"))
-          (decrypt k (encrypt k (byte-array (map byte "hello world"))))))))
+          (decrypt k (encrypt k (byte-array (map byte "hello world")))))))
+  (testing "encrypt/decrypt-string round trip"
+    (is (= "hello world"
+           (decrypt-to-string k (encrypt k "hello world"))))
+    (is (= "hello world"
+           (decrypt-to-string k (encrypt k "hello world") :ttl 15))
+        "round trip passes with valid ttl")
+    (is (thrown? clojure.lang.ExceptionInfo
+                 (decrypt-to-string k (encrypt k "hello world") :ttl -1))
+        "exceptions bubble up to caller")))

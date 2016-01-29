@@ -74,7 +74,6 @@ ExceptionInfo Invalid token.  clojure.core/ex-info (core.clj:4327)
 
 ## Todo
 
-* encrypt/decrypt string messages
 * encrypt/decrypt edn terms
 * autodoc?
 
