@@ -72,7 +72,7 @@
           (> ts (+ now max-clock-skew)))
       (invalid-token))))
 
-(defn decrypt-token [key-material token
+(defn decrypt-token [key-material ^bytes token
                      & {:keys [ttl now max-clock-skew]
                         :or {ttl nil now (now) max-clock-skew 60}}]
   (try
@@ -85,19 +85,25 @@
     (catch Exception e
       (invalid-token))))
 
-(defn decrypt [key token & options]
+(defn decrypt
   "Decrypt the token and return the contents as a byte-array"
+  [^String key ^bytes token & options]
   (apply decrypt-token key token options))
 
 (defn decrypt-to-string
   "Decrypt the token and return the message as a string"
-  [key token & options]
+  [^String key ^bytes token & options]
   (String. (apply decrypt-token key token options)))
 
-(defn encrypt [key message]
+(defn encrypt
+  "Encrypt the message bytes using the provided key and return the ciphertext
+  as a string"
+  [^String key ^bytes message]
   (String. (encrypt-message key message)))
 
-(defn encrypt-string [key message]
-  (let [message-bytes (byte-array (map byte message))
-        token (encrypt key message-bytes)]
-    token))
+(defn encrypt-string
+  "Encrypt the message string using the provided key and return the ciphertext
+  as a string"
+  [^String key ^String message]
+  (let [message-bytes (byte-array (map byte message))]
+    (encrypt key message-bytes)))
