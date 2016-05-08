@@ -72,7 +72,7 @@
           (> ts (+ now max-clock-skew)))
       (invalid-token))))
 
-(defn decrypt-token [key-material ^bytes token
+(defn decrypt-token [^String key-material ^bytes token
                      & {:keys [ttl now max-clock-skew]
                         :or {ttl nil now (now) max-clock-skew 60}}]
   (try
