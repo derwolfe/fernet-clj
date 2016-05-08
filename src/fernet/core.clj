@@ -93,7 +93,9 @@
 (defn decrypt-to-string
   "Decrypt the token and return the message as a string"
   [^String key ^bytes token & options]
-  (String. (apply decrypt-token key token options)))
+  (String.
+   (apply decrypt-token key token options)
+   (java.nio.charset.Charset/forName "utf-8")))
 
 (defn encrypt
   "Encrypt the message bytes using the provided key and return the ciphertext
@@ -105,5 +107,6 @@
   "Encrypt the message string using the provided key and return the ciphertext
   as a string"
   [^String key ^String message]
-  (let [message-bytes (byte-array (map byte message))]
+  (let [utf8-charset (java.nio.charset.Charset/forName "utf-8")
+        message-bytes (.getBytes message utf8-charset)]
     (encrypt key message-bytes)))
