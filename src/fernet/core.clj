@@ -43,14 +43,15 @@
 
 (defn aes128cbc
   [mode key iv message]
-  (.doFinal
-   (doto (Cipher/getInstance "AES/CBC/PKCS7Padding")
-     (.init
-      ^int (mode {:encrypt Cipher/ENCRYPT_MODE
-                  :decrypt Cipher/DECRYPT_MODE})
-      (new SecretKeySpec key "AES")
-      (new IvParameterSpec iv)))
-   message))
+  (let [cipher (Cipher/getInstance "AES/CBC/PKCS7Padding")
+        mode (mode {:encrypt Cipher/ENCRYPT_MODE
+                    :decrypt Cipher/DECRYPT_MODE})
+        k (new SecretKeySpec key "AES")
+        iv (new IvParameterSpec iv)]
+    (.doFinal
+     (doto cipher
+       (.init ^int mode k iv))
+     message)))
 
 (defn generate-key [] (urlbase64/encode (secure-random 32)))
 
