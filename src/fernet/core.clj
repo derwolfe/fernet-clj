@@ -103,7 +103,7 @@
   "Encrypt the message bytes using the provided key and return the ciphertext
   as a string"
   [key message]
-  (String. ^java.lang.String (encrypt-message key message)))
+  (String. ^String (encrypt-message key message)))
 
 (defn encrypt-string
   "Encrypt the message string using the provided key and return the ciphertext
