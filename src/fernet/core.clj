@@ -25,7 +25,7 @@
     (.nextBytes (new SecureRandom) b)
     b))
 
-(defn split-key [key-bytes]
+(defn split-key [^bytes key-bytes]
   {:signing-key (java.util.Arrays/copyOfRange key-bytes 0 16)
    :crypto-key  (java.util.Arrays/copyOfRange key-bytes 16 32)})
 
@@ -41,14 +41,16 @@
                 expected-signature))
       (invalid-token))))
 
-(defn aes128cbc [mode key iv message]
-  (.doFinal (doto (Cipher/getInstance "AES/CBC/PKCS7Padding")
-              (.init
-                (mode {:encrypt Cipher/ENCRYPT_MODE
-                       :decrypt Cipher/DECRYPT_MODE})
-                (new SecretKeySpec key "AES")
-                (new IvParameterSpec iv)))
-            message))
+(defn aes128cbc
+  [mode key iv message]
+  (.doFinal
+   (doto (Cipher/getInstance "AES/CBC/PKCS7Padding")
+     (.init
+      (mode {:encrypt Cipher/ENCRYPT_MODE
+             :decrypt Cipher/DECRYPT_MODE})
+      (new SecretKeySpec key "AES")
+      (new IvParameterSpec iv)))
+   message))
 
 (defn generate-key [] (urlbase64/encode (secure-random 32)))
 
@@ -72,7 +74,7 @@
           (> ts (+ now max-clock-skew)))
       (invalid-token))))
 
-(defn decrypt-token [^String key-material ^bytes token
+(defn decrypt-token [key-material token
                      & {:keys [ttl now max-clock-skew]
                         :or {ttl nil now (now) max-clock-skew 60}}]
   (try
@@ -87,26 +89,26 @@
 
 (defn decrypt
   "Decrypt the token and return the contents as a byte-array"
-  [^String key ^bytes token & options]
+  [key token & options]
   (apply decrypt-token key token options))
 
 (defn decrypt-to-string
   "Decrypt the token and return the message as a UTF-8 encoded string"
-  [^String key ^bytes token & options]
+  [key token & options]
   (String.
-   (apply decrypt-token key token options)
+   ^bytes (apply decrypt-token key token options)
    (java.nio.charset.Charset/forName "utf-8")))
 
 (defn encrypt
   "Encrypt the message bytes using the provided key and return the ciphertext
   as a string"
-  [^String key ^bytes message]
-  (String. (encrypt-message key message)))
+  [key message]
+  (String. ^java.lang.String (encrypt-message key message)))
 
 (defn encrypt-string
   "Encrypt the message string using the provided key and return the ciphertext
   as a UTF-8 encoded string"
-  [^String key ^String message]
+  [key message]
   (let [utf8-charset (java.nio.charset.Charset/forName "utf-8")
-        message-bytes (.getBytes message utf8-charset)]
+        message-bytes (.getBytes ^String message utf8-charset)]
     (encrypt key message-bytes)))
