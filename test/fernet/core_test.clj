@@ -96,6 +96,6 @@
     (is (thrown? clojure.lang.ExceptionInfo
                  (decrypt-to-string k (encrypt-string k "hello world") :ttl -1))
         "exceptions bubble up to caller")
-    (let [unicode-msg (String. "W\u00fcrst")]
+    (let [unicode-msg "W\u00fcrst"]
       (is (= unicode-msg (decrypt-to-string k (encrypt-string k unicode-msg)))
           "works for unicode strings"))))
