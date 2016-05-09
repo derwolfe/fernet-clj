@@ -46,8 +46,8 @@
   (.doFinal
    (doto (Cipher/getInstance "AES/CBC/PKCS7Padding")
      (.init
-      (mode {:encrypt Cipher/ENCRYPT_MODE
-             :decrypt Cipher/DECRYPT_MODE})
+      ^int (mode {:encrypt Cipher/ENCRYPT_MODE
+                  :decrypt Cipher/DECRYPT_MODE})
       (new SecretKeySpec key "AES")
       (new IvParameterSpec iv)))
    message))
