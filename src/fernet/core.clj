@@ -6,7 +6,7 @@
            (javax.crypto.spec IvParameterSpec SecretKeySpec)
            (org.bouncycastle.jce.provider BouncyCastleProvider)))
 
-(Security/addProvider (new BouncyCastleProvider))
+(Security/addProvider (BouncyCastleProvider.))
 
 (def version 0x80)
 
@@ -22,7 +22,7 @@
 (defn- secure-random [size]
   "Generate secure random byte-array of 'size'."
   (let [b (byte-array size)]
-    (.nextBytes (new SecureRandom) b)
+    (.nextBytes (SecureRandom.) b)
     b))
 
 (defn split-key [^bytes key-bytes]
@@ -31,7 +31,7 @@
 
 (defn hmac [key to-sign]
   (.doFinal (doto (Mac/getInstance "HMACSHA256")
-              (.init (new SecretKeySpec key "HMACSHA256")))
+              (.init (SecretKeySpec. key "HMACSHA256")))
             to-sign))
 
 (defn hmac-verify [key to-sign signature]
@@ -46,8 +46,8 @@
   (let [cipher (Cipher/getInstance "AES/CBC/PKCS7Padding")
         mode (mode {:encrypt Cipher/ENCRYPT_MODE
                     :decrypt Cipher/DECRYPT_MODE})
-        k (new SecretKeySpec key "AES")
-        iv (new IvParameterSpec iv)]
+        k (SecretKeySpec. key "AES")
+        iv (IvParameterSpec. iv)]
     (.doFinal
      (doto cipher
        (.init ^int mode k iv))
