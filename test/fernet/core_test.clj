@@ -21,10 +21,10 @@
   (testing
     (is (= "7649abac8119b246cee98e9b12e9197d8964e0b149c10b7b682e6e39aaeb731c"
            (hex
-              (aes128cbc :encrypt
-                         (unhex "2b7e151628aed2a6abf7158809cf4f3c")
-                         (unhex "000102030405060708090A0B0C0D0E0F")
-                         (unhex "6bc1bee22e409f96e93d7e117393172a")))))))
+            (#'fernet.core/aes128cbc :encrypt
+                                     (unhex "2b7e151628aed2a6abf7158809cf4f3c")
+                                     (unhex "000102030405060708090A0B0C0D0E0F")
+                                     (unhex "6bc1bee22e409f96e93d7e117393172a")))))))
 
 (deftest hmac-signing
   (testing
@@ -86,4 +86,16 @@
   (testing "encrypt/decrypt round trip"
     (is (java.util.Arrays/equals
           (byte-array (map byte "hello world"))
-          (decrypt k (encrypt k (byte-array (map byte "hello world"))))))))
+          (decrypt k (encrypt k (byte-array (map byte "hello world")))))))
+  (testing "encrypt/decrypt-string round trip"
+    (is (= "hello world"
+           (decrypt-to-string k (encrypt-string k "hello world"))))
+    (is (= "hello world"
+           (decrypt-to-string k (encrypt-string k "hello world") :ttl 15))
+        "round trip passes with valid ttl")
+    (is (thrown? clojure.lang.ExceptionInfo
+                 (decrypt-to-string k (encrypt-string k "hello world") :ttl -1))
+        "exceptions bubble up to caller")
+    (let [unicode-msg "W\u00fcrst"]
+      (is (= unicode-msg (decrypt-to-string k (encrypt-string k unicode-msg)))
+          "works for unicode strings"))))

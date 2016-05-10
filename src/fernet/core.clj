@@ -6,7 +6,7 @@
            (javax.crypto.spec IvParameterSpec SecretKeySpec)
            (org.bouncycastle.jce.provider BouncyCastleProvider)))
 
-(Security/addProvider (new BouncyCastleProvider))
+(Security/addProvider (BouncyCastleProvider.))
 
 (def version 0x80)
 
@@ -22,16 +22,16 @@
 (defn- secure-random [size]
   "Generate secure random byte-array of 'size'."
   (let [b (byte-array size)]
-    (.nextBytes (new SecureRandom) b)
+    (.nextBytes (SecureRandom.) b)
     b))
 
-(defn split-key [key-bytes]
+(defn split-key [^bytes key-bytes]
   {:signing-key (java.util.Arrays/copyOfRange key-bytes 0 16)
    :crypto-key  (java.util.Arrays/copyOfRange key-bytes 16 32)})
 
 (defn hmac [key to-sign]
   (.doFinal (doto (Mac/getInstance "HMACSHA256")
-              (.init (new SecretKeySpec key "HMACSHA256")))
+              (.init (SecretKeySpec. key "HMACSHA256")))
             to-sign))
 
 (defn hmac-verify [key to-sign signature]
@@ -41,14 +41,17 @@
                 expected-signature))
       (invalid-token))))
 
-(defn aes128cbc [mode key iv message]
-  (.doFinal (doto (Cipher/getInstance "AES/CBC/PKCS7Padding")
-              (.init
-                (mode {:encrypt Cipher/ENCRYPT_MODE
-                       :decrypt Cipher/DECRYPT_MODE})
-                (new SecretKeySpec key "AES")
-                (new IvParameterSpec iv)))
-            message))
+(defn- aes128cbc
+  [mode key iv message]
+  (let [cipher (Cipher/getInstance "AES/CBC/PKCS7Padding")
+        mode (mode {:encrypt Cipher/ENCRYPT_MODE
+                    :decrypt Cipher/DECRYPT_MODE})
+        k (SecretKeySpec. key "AES")
+        iv (IvParameterSpec. iv)]
+    (.doFinal
+     (doto cipher
+       (.init ^int mode k iv))
+     message)))
 
 (defn generate-key [] (urlbase64/encode (secure-random 32)))
 
@@ -85,8 +88,46 @@
     (catch Exception e
       (invalid-token))))
 
-(defn encrypt [key message]
-  (String. (encrypt-message key message)))
+(defn decrypt
+  "Decrypt the token using the key
 
-(defn decrypt [key token & options]
+  key - a base64 encoded string
+  token - a byte-array
+
+  returns the message as a byte-array"
+  [key token & options]
   (apply decrypt-token key token options))
+
+(defn decrypt-to-string
+  "Decrypt the token using the key
+
+  key - a base64 encoded string
+  token - a byte-array
+
+  returns the message as a UTF-8 encoded string"
+  [key token & options]
+  (String.
+   ^bytes (apply decrypt-token key token options)
+   (java.nio.charset.Charset/forName "utf-8")))
+
+(defn encrypt
+  "Encrypt the message using the key
+
+  key - a base64 encoded string
+  message - a byte-array
+
+  returns the ciphertext as a urlsafe base64 encoded string"
+  [key message]
+  (encrypt-message key message))
+
+(defn encrypt-string
+  "Encrypt the message using the key
+
+  key - a base64 encoded string
+  message-string - a UTF-8 encoded string
+
+  returns the ciphertext as a urlsafe base64 encoded string"
+  [key message-string]
+  (let [utf8-charset (java.nio.charset.Charset/forName "utf-8")
+        message-bytes (.getBytes ^String message-string utf8-charset)]
+    (encrypt key message-bytes)))
