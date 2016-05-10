@@ -13,5 +13,6 @@
                                   [perforate "0.3.3"]]
                    :plugins [[perforate "0.3.3"]
                              [lein-autodoc "0.9.0"]]}}
-  :lein-release {:deploy-via :clojars}
+  :deploy-repositories [["releases" :clojars]
+                        ["snapshots" :clojars]]
   :global-vars {*warn-on-reflection* true})
