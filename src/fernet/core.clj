@@ -6,8 +6,6 @@
            (javax.crypto.spec IvParameterSpec SecretKeySpec)
            (org.bouncycastle.jce.provider BouncyCastleProvider)))
 
-(set! *warn-on-reflection* true)
-
 (Security/addProvider (new BouncyCastleProvider))
 
 (def version 0x80)
