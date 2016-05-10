@@ -89,27 +89,45 @@
       (invalid-token))))
 
 (defn decrypt
-  "Decrypt the token and return the contents as a byte-array"
+  "Decrypt the token using the key
+
+  key - a base64 encoded string
+  token - a byte-array
+
+  returns the message as a byte-array"
   [key token & options]
   (apply decrypt-token key token options))
 
 (defn decrypt-to-string
-  "Decrypt the token and return the message as a UTF-8 encoded string"
+  "Decrypt the token using the key
+
+  key - a base64 encoded string
+  token - a byte-array
+
+  returns the message as a UTF-8 encoded string"
   [key token & options]
   (String.
    ^bytes (apply decrypt-token key token options)
    (java.nio.charset.Charset/forName "utf-8")))
 
 (defn encrypt
-  "Encrypt the message bytes using the provided key and return the ciphertext
-  as a string"
+  "Encrypt the message using the key
+
+  key - a base64 encoded string
+  message - a byte-array
+
+  returns the ciphertext as a urlsafe base64 encoded string"
   [key message]
   (encrypt-message key message))
 
 (defn encrypt-string
-  "Encrypt the message string using the provided key and return the ciphertext
-  as a UTF-8 encoded string"
-  [key message]
+  "Encrypt the message using the key
+
+  key - a base64 encoded string
+  message-string - a UTF-8 encoded string
+
+  returns the ciphertext as a urlsafe base64 encoded string"
+  [key message-string]
   (let [utf8-charset (java.nio.charset.Charset/forName "utf-8")
-        message-bytes (.getBytes ^String message utf8-charset)]
+        message-bytes (.getBytes ^String message-string utf8-charset)]
     (encrypt key message-bytes)))
