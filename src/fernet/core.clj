@@ -41,7 +41,7 @@
                 expected-signature))
       (invalid-token))))
 
-(defn aes128cbc
+(defn- aes128cbc
   [mode key iv message]
   (let [cipher (Cipher/getInstance "AES/CBC/PKCS7Padding")
         mode (mode {:encrypt Cipher/ENCRYPT_MODE
@@ -104,7 +104,7 @@
   "Encrypt the message bytes using the provided key and return the ciphertext
   as a string"
   [key message]
-  (String. ^String (encrypt-message key message)))
+  (encrypt-message key message))
 
 (defn encrypt-string
   "Encrypt the message string using the provided key and return the ciphertext
