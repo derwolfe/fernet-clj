@@ -72,15 +72,30 @@ user=> (fernet.core/decrypt k token :ttl 5)
 ExceptionInfo Invalid token.  clojure.core/ex-info (core.clj:4327)
 ```
 
+One may also encrypt and decrypt string messages using the
+`fernet.core/encrypt-string` and `fernet.core/decrypt-to-string` functions.
+
+```clojure
+user=> (def m "W\u00fcrst")
+#'user/m
+user=> (def token (fernet.core/encrypt-string k m))
+#'user/token
+user=> token
+"gAAAAABXMjH1bUMEHUXckPSlrAmydnnzsOzitfWHuGidq7SXxHhDieWWxgezvN3xeI4iPEgt0H_QjUP4KtqntCgpya1w74-DLQ"
+user=> (fernet.core/decrypt-to-string k token)
+"Würst"
+```
+
 ## Todo
 
-* encrypt/decrypt string messages
 * encrypt/decrypt edn terms
 * autodoc?
 
 ## License
 
-Copyright © 2013 David Reid
+Copyright © 2013-2016
+David Reid
+Chris Wolfe
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -99,4 +114,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-
