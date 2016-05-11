@@ -1,10 +1,10 @@
 (ns fernet.frame
-  (:require [clojurewerkz.buffy.core :refer :all]
-            [clojurewerkz.buffy.types.protocols :refer :all]))
+  (:require [clojurewerkz.buffy.core :as bc]
+            [clojurewerkz.buffy.types.protocols :as bp]))
 
 ;; extend buffy
 (deftype UByteType []
-  BuffyType
+  bp/BuffyType
   (size [_] 1)
   (write [bt buffer idx value]
     (.setByte buffer idx value))
@@ -14,20 +14,20 @@
 (def ubyte-type (memoize #(UByteType.)))
 
 (def token-spec {:version (ubyte-type)
-                 :timestamp (long-type)
-                 :iv (bytes-type 16)
+                 :timestamp (bc/long-type)
+                 :iv (bc/bytes-type 16)
                  :ciphertext nil
-                 :hmac (bytes-type 32)})
+                 :hmac (bc/bytes-type 32)})
 
 (def overhead
-  (apply + (map #(size (second %)) (dissoc token-spec :ciphertext))))
+  (apply + (map #(bp/size (second %)) (dissoc token-spec :ciphertext))))
 
 (defn token-buf [ciphertext-length]
-  (let [spec (assoc token-spec :ciphertext (bytes-type ciphertext-length))]
-    (compose-buffer spec :buffer-type :heap)))
+  (let [spec (assoc token-spec :ciphertext (bc/bytes-type ciphertext-length))]
+    (bc/compose-buffer spec :buffer-type :heap)))
 
 (defn fill-buffer [buf b]
-  (.setBytes (buffer buf) 0 b)
+  (.setBytes (bc/buffer buf) 0 b)
   buf)
 
 (defn get-bytes
@@ -43,16 +43,16 @@
   (let [ciphertext-length (alength ciphertext)
         signed-length (- (+ overhead ciphertext-length) 32)
         buf (token-buf ciphertext-length)]
-    (set-fields buf {:version version
+    (bc/compose buf {:version version
                      :timestamp timestamp
                      :iv iv
                      :ciphertext ciphertext})
-    (set-field buf :hmac (hmac-fn (get-bytes (buffer buf) signed-length)))
-    (.array (buffer buf))))
+    (bc/set-field buf :hmac (hmac-fn (get-bytes (bc/buffer buf) signed-length)))
+    (.array (bc/buffer buf))))
 
 (defn decode-token
   [b]
   (let [signed-length (- (alength b) 32)
         buf (token-buf (- (alength b) overhead))]
     (fill-buffer buf b)
-    (assoc (decompose buf) :signed (get-bytes (buffer buf) signed-length))))
+    (assoc (bc/decompose buf) :signed (get-bytes (bc/buffer buf) signed-length))))
