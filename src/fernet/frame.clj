@@ -43,10 +43,10 @@
   (let [ciphertext-length (alength ciphertext)
         signed-length (- (+ overhead ciphertext-length) 32)
         buf (token-buf ciphertext-length)]
-    (bc/set-fields buf {:version version
-                        :timestamp timestamp
-                        :iv iv
-                        :ciphertext ciphertext})
+    (bc/compose buf {:version version
+                     :timestamp timestamp
+                     :iv iv
+                     :ciphertext ciphertext})
     (bc/set-field buf :hmac (hmac-fn (get-bytes (bc/buffer buf) signed-length)))
     (.array (bc/buffer buf))))
 
