@@ -3,7 +3,8 @@
   :url "https://github.com/derwolfe/fernet-clj"
   :license {:name "MIT"
             :url "https://raw.github.com/derwolfe/fernet-clj/master/LICENSE"}
-  :dependencies [[org.clojure/clojure "1.8.0"]
+  :dependencies [[org.clojure/clojure "1.9.0-alpha14"]
+                 [org.clojure/test.check "0.9.0"]
                  [org.bouncycastle/bcprov-jdk15on "1.54"]
                  [commons-codec/commons-codec "1.10"]
                  [clojurewerkz/buffy "1.0.2"]]
@@ -14,6 +15,7 @@
                    :plugins [[perforate "0.3.3"]
                              [lein-autodoc "0.9.0"]
                              [lein-ancient "0.6.8"]]}}
+  :repl-options {:init-ns fernet.core }
   :deploy-repositories [["releases" :clojars]
                         ["snapshots" :clojars]]
   :global-vars {*warn-on-reflection* true})

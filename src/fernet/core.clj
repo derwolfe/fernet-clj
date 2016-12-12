@@ -1,6 +1,8 @@
 (ns fernet.core
   (:require [fernet.codec.urlbase64 :as urlbase64]
-            [fernet.frame :as frame])
+            [fernet.frame :as frame]
+            [clojure.spec :as s]
+            [clojure.test.check.generators :as gen])
   (:import (java.security SecureRandom Security)
            (javax.crypto Cipher Mac)
            (javax.crypto.spec IvParameterSpec SecretKeySpec)
@@ -88,6 +90,11 @@
     (catch Exception e
       (invalid-token))))
 
+;; (s/def :token bytes)
+
+;; come up with a spec that describes decrypt
+
+
 (defn decrypt
   "Decrypt the token using the key
 
@@ -109,6 +116,33 @@
   (String.
    ^bytes (apply decrypt-token key token options)
    (java.nio.charset.Charset/forName "utf-8")))
+
+;; a key is a base64 url encoded string that is 32 bytes (256 bits)
+;; this could just use a regex like
+;; RFC below defines possible characters in base64 urlsafe
+;; https://tools.ietf.org/html/rfc4648#page-7
+;; (def b64urlsafe-regex #"^(?:[A-Za-z0-9_-+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?32$")
+;; but how should it be encoded that this needs to be securely random?
+
+;; how to encode that a key needs to be securely randomized 32 bytes. These need
+;; to be encoded as urlsafe base64
+(s/def ::key (s/and string? :min-count 32 :max-count 32))
+(s/def ::message bytes?)
+(s/def ::token bytes?)
+
+(s/fdef encrypt
+        :args (s/cat :key ::key :message ::message)
+        :ret ::token)
+
+(def email-regex #"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,63}$")
+(s/def ::email-type (s/and string? #(re-matches email-regex %)))
+(def kw-gen-3 (gen/fmap #(keyword "my.domain" %)
+                        (gen/such-that #(not= % "")
+                                       (gen/string-alphanumeric))))
+
+#_ (s/exercise (:args (s/get-spec `encrypt)))
+#_ (gen/sample (s/gen ::email-type))
+
 
 (defn encrypt
   "Encrypt the message using the key
